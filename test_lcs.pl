@@ -7,23 +7,23 @@ use Data::Dumper;
 use LCS; 
 use LCS::Regex;
 
-$LCS::Regex::quiet_debug = 0;
-my $quiet_debug = 0;
-sub debug {
-    print STDERR $_[0] // 'undefined' unless $quiet_debug;
-}
+
 
 my $iterations = 1000;
 
 my $search_string = "..some-thing 1 action.."; 
-my $output="2020/03/02 08:03:53: ..Type#sme-t\\n2020/03/02 08:03:53: *Mar 2 16:05:22.115: %DIRTY-6-COMMENT_SUBSTRING: Saving Type summary (type-reaction-summary)... Please wait. Do not interrupt.hing 1 action.."; 
+my $output="2020/03/02 08:03:53: ..Type#some-t\\n2020/03/02 08:03:53: *Mar 2 16:05:22.115: %DIRTY-6-COMMENT_SUBSTRING: Saving Type summary (type-reaction-summary)... Please wait. Do not interrupt.hing 1 action.."; 
+
+my $search_string_qtd = quotemeta($search_string);
+
+set_debug_quiet(0);
+
 
 say "use_lcs result: ".use_lcs($search_string, $output).";";
-say "use_regex_short result: ".use_regex_short($search_string, $output).";";
-say "use_regex result: ".use_regex($search_string, $output).";";
+say "use_regex_short result: ".use_regex_short($search_string_qtd, $output).";";
+say "use_regex result: ".use_regex($search_string_qtd, $output).";";
 
-$LCS::Regex::quiet_debug = 1;
-$quiet_debug = 1;
+set_debug_quiet(1);
 
 my $time = time;
 for (my $i=0; $i < $iterations; $i++) {
@@ -33,13 +33,13 @@ say "use_lcs time: ".(time() - $time).";";
 
 $time = time();
 for (my $i=0; $i < $iterations; $i++) {
-    use_regex($search_string, $output);
+    use_regex($search_string_qtd, $output);
 }
 say "use_regex time: ".(time() - $time).";";
 
 $time = time();
 for (my $i=0; $i < $iterations; $i++) {
-    use_regex_short($search_string, $output);
+    use_regex_short($search_string_qtd, $output);
 }
 say "use_regex_short time: ".(time() - $time).";";
 
@@ -73,4 +73,10 @@ sub use_lcs {
     #debug(Dumper([$resstr1,$resstr2]));
 }
 
-
+my $quiet_debug = 0;
+sub set_debug_quiet{
+    $LCS::Regex::quiet_debug = $quiet_debug = $_[0];
+}
+sub debug {
+    print STDERR $_[0] // 'undefined' unless $quiet_debug;
+}
